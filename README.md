@@ -77,6 +77,11 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+1. In the classic Observer Pattern described in the Head First Design Patterns book, an interface is used to ensure the "Subject" can notify diverse objects without knowing their specific types. In this bambangShop implementation, a single Subscriber model struct is sufficient for now because the notification logic is uniform, every subscriber is notified by sending an HTTP POST request to a specific URL. However, we would need to implement a Trait (the Rust equivalent of an interface) if we wanted to support different types of notification logic in the future. For instance, if some subscribers required an email while others required a local system log, a trait would allow the Publisher to call a common .update() method on any object that implements the notification behavior, regardless of its internal implementation.
+
+2. While a Vec (list) is a standard way to store collections, it is not the most efficient choice for handling unique identifiers like a url or a product id. If we were to use a Vec, searching for a specific subscriber to delete or verifying uniqueness before adding a new one would require the program to iterate through every element, resulting in a time complexity of O(n). By using a DashMap (a concurrent hash map), we treat the unique url or id as a key, allowing the program to locate, add, or remove entries in nearly instantaneous O(1) time. This structure is necessary for a web application where performance and the prevention of duplicate subscriptions are critical.
+
+3. The implementation already uses a variation of the Singleton Pattern by employing lazy_static to create a single, global instance of the SUBSCRIBERS database that exists for the lifetime of the program. However, simply having a Singleton is not enough in Rust because the compiler enforces rigorous constraints to ensure thread safety. Because multiple web requests (threads) might try to access or modify the subscriber list simultaneously, we need a data structure that can handle concurrent access without causing data races. DashMap provides this necessary synchronization, allowing us to safely mutate our global Singleton state across multiple threads without the program crashing or corrupting data.
 
 #### Reflection Publisher-2
 
